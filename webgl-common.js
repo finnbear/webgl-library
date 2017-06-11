@@ -29,7 +29,7 @@ function onLoad() {
 			
 			if (shaderScript) {
 				var source = "";
-				var currentChild = shader.firstChild;
+				var currentChild = shaderScript.firstChild;
 				
 				while (currentChild) {
 					if (currentChild.nodeType == 3) {
