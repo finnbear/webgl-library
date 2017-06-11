@@ -1,6 +1,7 @@
+var gl = null;
+
 function onLoad() {
 	var canvas = document.getElementById("canvas");
-	var gl = null;
 
 	function onWindowResize() {
 		canvas.style.width = window.innerWidth;
@@ -56,7 +57,7 @@ function onLoad() {
 				if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
 					return shader;
 				} else {
-					alert("Unable to compile the shader: " + gl.getShaderInfoLog(shader));
+					alert("Unable to compile the shader: " + shaderScript.type + gl.getShaderInfoLog(shader));
 					return null;
 				}	
 			} else {
@@ -86,12 +87,11 @@ function onLoad() {
 			alert("Unable to initialize the shader program: " + gl.getProgramInfoLog(shader));
 		}
 		
-		
-
-		// Init buffers
-		initBuffers();
+		init();
 
 		function loop() {
+			update();
+		
 			requestAnimationFrame(loop);
 		}
 
