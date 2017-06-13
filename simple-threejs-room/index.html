@@ -30,7 +30,7 @@ maximum-scale=1.0">
 			var texture = new THREE.TextureLoader().load('../brick.jpg');
 
 			var geometry = new THREE.BoxBufferGeometry(300, 300, 300);
-			var material = new THREE.MeshPhongMaterial({map: texture, normalMap: texture, side: THREE.BackSide});
+			var material = new THREE.MeshPhongMaterial({map: texture, normalMap: texture, reflectivity: 0.25, side: THREE.BackSide});
 
 			mesh = new THREE.Mesh(geometry, material);
 
