@@ -59,13 +59,27 @@ maximum-scale=1.0">
 
 			window.addEventListener('resize', onWindowResize, false);
 			
+			var i = 0;
+
 			function loop() {
 				requestAnimationFrame(loop);
 
 				mesh.rotation.x += 0.005;
 				mesh.rotation.y += 0.01;
 
+				if (i == 150) {
+					material.wireframe = true;
+					material.requiresUpdate = true;
+				} else if (i == 200) {
+					material.wireframe = false;
+					material.requiresUpdate = true;
+					i = 0;
+				}  
+
 				renderer.render(scene, camera);
+
+				// Uncomment to enable wireframe preview
+				//i += 1;
 			}
 
 			loop();
