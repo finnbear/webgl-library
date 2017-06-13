@@ -4,8 +4,8 @@ function onLoad() {
 	var canvas = document.getElementById("canvas");
 
 	function onWindowResize() {
-		canvas.style.width = "" + window.innerWidth;
-		canvas.style.height = "" + window.innerHeight;
+		canvas.style.width = window.innerWidth + "px";
+		canvas.style.height = window.innerHeight + "px";
 	}
 
 	onWindowResize();
