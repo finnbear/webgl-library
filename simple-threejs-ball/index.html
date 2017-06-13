@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Simple Sphere</title>
+		<title>Simple Ball</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, 
 maximum-scale=1.0">
@@ -27,8 +27,10 @@ maximum-scale=1.0">
 
 			scene = new THREE.Scene();
 
-			var geometry = new THREE.SphereBufferGeometry(150, 15, 15);
-			var material = new THREE.MeshPhongMaterial({emissive: 0xffaaaa, emissiveIntensity:0.2});
+			var texture = new THREE.TextureLoader().load('../cloth.jpg');
+
+			var geometry = new THREE.SphereBufferGeometry(150, 50, 50);
+			var material = new THREE.MeshPhongMaterial({map:texture, normalMap:texture, emissive: 0xffaaaa, emissiveIntensity:0.2});
 
 			mesh = new THREE.Mesh(geometry, material);
 
