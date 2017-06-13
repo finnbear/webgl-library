@@ -27,14 +27,23 @@ maximum-scale=1.0">
 
 			scene = new THREE.Scene();
 
-			var texture = new THREE.TextureLoader().load('../crate.gif');
+			var texture = new THREE.TextureLoader().load('../brick.jpg');
 
 			var geometry = new THREE.BoxBufferGeometry(300, 300, 300);
-			var material = new THREE.MeshBasicMaterial({map: texture, side: THREE.BackSide});
+			var material = new THREE.MeshPhongMaterial({map: texture, normalMap: texture, side: THREE.BackSide});
 
 			mesh = new THREE.Mesh(geometry, material);
 
 			scene.add(mesh);
+
+			var lightHemisphere = new THREE.HemisphereLight(0xaaffaa, 0xaaaaff);
+
+			scene.add(lightHemisphere);
+
+			var light = new THREE.PointLight(0xffffff, 1, 300);
+			light.position.set(0, 0, 0);
+
+			scene.add(light);
 
 			renderer = new THREE.WebGLRenderer();
 			renderer.setPixelRatio(window.devicePixelRatio);
