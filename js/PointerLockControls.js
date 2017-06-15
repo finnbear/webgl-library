@@ -1,5 +1,6 @@
 /**
  * @author mrdoob / http://mrdoob.com/
+ * @editor finnbear / https://finnbear.com/
  */
 
 THREE.PointerLockControls = function ( camera ) {
@@ -29,6 +30,21 @@ THREE.PointerLockControls = function ( camera ) {
 
 		pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, pitchObject.rotation.x ) );
 
+	};
+
+	this.move = function(movementX, movementY, movementZ) {
+		//rotationX = yawObject.rotation.y;
+		rotationY = pitchObject.rotation.x;
+
+		//yawObject.rotation.y = 0;
+		pitchObject.rotation.x = 0;
+
+		yawObject.translateX(movementX);
+		yawObject.translateY(movementY);
+		yawObject.translateZ(movementZ);
+
+		//yawObject.rotation.y = rotationX;
+		pitchObject.rotation.x = rotationY;
 	};
 
 	this.dispose = function() {

@@ -98,27 +98,25 @@ maximum-scale=1.0">
 			function loop() {
 				requestAnimationFrame(loop);
 
-				var y = camera.position.y;
+				//var y = camera.getWorldPosition().y;
 
 				var speed = 1;
 
 				if (keys[0]) {
-					camera.translateX(-1 * speed);
+					controls.move(-speed, 0, 0);
 				}
 
 				if (keys[1]) {
-					camera.translateZ(-1 * speed);
+					controls.move(0, 0, -speed);
 				}
 
-				if (keys[2]) {
-					camera.translateX(speed);
+ 				if (keys[2]) {
+					controls.move(speed, 0, 0);
 				}
 
 				if (keys[3]) {
-					camera.translateZ(speed);
+					controls.move(0, 0, speed);
 				}
-
-				camera.position.set(camera.position.x, y, camera.position.z);
 
 				camera.updateProjectionMatrix();
 
