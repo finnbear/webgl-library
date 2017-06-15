@@ -24,7 +24,7 @@ maximum-scale=1.0">
 
 			var texture = new THREE.TextureLoader().load('tile.jpg');
 
-			var geometry = new THREE.BoxBufferGeometry(300, 300, 300);
+			var geometry = new THREE.BoxBufferGeometry(400, 400, 400);
 			var material = new THREE.MeshPhongMaterial({map: texture, normalMap: texture, reflectivity: 0.50, side: THREE.BackSide});
 
 			mesh = new THREE.Mesh(geometry, material);
@@ -50,6 +50,7 @@ maximum-scale=1.0">
 				controls = new THREE.PointerLockControls(camera);
 				controls.enabled = true;
 				scene.add(controls.getObject());
+				controls.move(0, -100, 0);
 			}, false);
 
 			var keys = [false, false, false, false];
@@ -100,7 +101,7 @@ maximum-scale=1.0">
 
 				//var y = camera.getWorldPosition().y;
 
-				var speed = 1;
+				var speed = 5;
 
 				if (keys[0]) {
 					controls.move(-speed, 0, 0);
