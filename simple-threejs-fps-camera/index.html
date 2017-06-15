@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>FPS Camera</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, 
+maximum-scale=1.0">
+
+		<link rel="stylesheet" type="text/css" href="../style.css">
+	</head>
+	<body>
+		<script src="../three.js/build/three.js"></script>
+		<script src="../js/PointerLockControls.js"></script>
+
+		<script type="application/javascript">
+			var camera, scene, renderer;
+			var mesh;
+			var controls;
+
+			camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
+			camera.position.set(0, 0, 0);
+
+			scene = new THREE.Scene();
+
+			var texture = new THREE.TextureLoader().load('tile.jpg');
+
+			var geometry = new THREE.BoxBufferGeometry(300, 300, 300);
+			var material = new THREE.MeshPhongMaterial({map: texture, normalMap: texture, reflectivity: 0.50, side: THREE.BackSide});
+
+			mesh = new THREE.Mesh(geometry, material);
+
+			scene.add(mesh);
+
+			var lightHemisphere = new THREE.HemisphereLight(0xaaffaa, 0xaaaaff);
+
+			scene.add(lightHemisphere);
+
+			var light = new THREE.PointLight(0xffffff, 1, 300);
+			light.position.set(0, 0, 0);
+
+			scene.add(light);
+
+			renderer = new THREE.WebGLRenderer();
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+
+			renderer.domElement.addEventListener('click', function(event) {
+				document.body.requestPointerLock = document.body.requestPointerLock || document.body.mozRequestPointerLock || document.body.webkitRequestPointerLock;
+				document.body.requestPointerLock();
+				controls = new THREE.PointerLockControls(camera);
+				controls.enabled = true;
+				scene.add(controls.getObject());
+			}, false);
+
+			function onWindowResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+
+			document.body.appendChild(renderer.domElement);
+
+			window.addEventListener('resize', onWindowResize, false);
+			
+			var i = 0;
+
+			function loop() {
+				requestAnimationFrame(loop);
+
+				renderer.render(scene, camera);
+			}
+
+			loop();
+		</script>
+	</body>
+</html>
