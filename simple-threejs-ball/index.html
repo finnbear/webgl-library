@@ -6,13 +6,7 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, 
 maximum-scale=1.0">
 
-		<style>
-			body {
-				margin: 0px;
-				background-color: #000000;
-				overflow: hidden;
-			}
-		</style>
+		<link rel="stylesheet" type="text/css" href="../style.css">
 	</head>
 	<body>
 		<script src="../three.js/build/three.js"></script>
@@ -27,7 +21,7 @@ maximum-scale=1.0">
 
 			scene = new THREE.Scene();
 
-			var texture = new THREE.TextureLoader().load('../cloth.jpg');
+			var texture = new THREE.TextureLoader().load('cloth.jpg');
 
 			var geometry = new THREE.SphereBufferGeometry(150, 50, 50);
 			var material = new THREE.MeshPhongMaterial({map:texture, normalMap:texture, emissive: 0xffaaaa, emissiveIntensity:0.2});

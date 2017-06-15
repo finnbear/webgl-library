@@ -6,13 +6,7 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, 
 maximum-scale=1.0">
 
-		<style>
-			body {
-				margin: 0px;
-				background-color: #000000;
-				overflow: hidden;
-			}
-		</style>
+		<link rel="stylesheet" type="text/css" href="../style.css">
 	</head>
 	<body>
 		<script src="../three.js/build/three.js"></script>
@@ -27,7 +21,7 @@ maximum-scale=1.0">
 
 			scene = new THREE.Scene();
 
-			var texture = new THREE.TextureLoader().load('../brick.jpg');
+			var texture = new THREE.TextureLoader().load('brick.jpg');
 
 			var geometry = new THREE.BoxBufferGeometry(300, 300, 300);
 			var material = new THREE.MeshPhongMaterial({map: texture, normalMap: texture, reflectivity: 0.25, side: THREE.BackSide});
