@@ -29,7 +29,6 @@ THREE.PointerLockControls = function ( camera ) {
 		pitchObject.rotation.x -= movementY * 0.002;
 
 		pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, pitchObject.rotation.x ) );
-
 	};
 
 	this.move = function(movementX, movementY, movementZ) {
