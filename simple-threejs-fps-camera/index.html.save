@@ -52,80 +52,13 @@ maximum-scale=1.0">
 				scene.add(controls.getObject());
 			}, false);
 
-			var keys = [false, false, false, false];
+			var keys = [];
 
-			document.addEventListener('keydown', handleKey, false);
-			document.addEventListener('keyup', handleKey, false); 
-			function handleKey(event) {
+			document.addEventListener('keydown', function(event) {
 				event = event || window.event;
 				
-				var key = event.keyCode;
+				var key = event.keyCode();
 
-				var action = (event.type == "keydown");
-
-				switch (key) {
-					case 37:
-					case 65:
-						keys[0] = action;
-						break;
-					case 38:
-					case 87:
-						keys[1] = action;
-						break;
-					case 39:
-					case 68:
-						keys[2] = action;
-						break;
-					case 40:
-					case 83:
-						keys[3] = action;
-						break;
+				if (key == 37 || key ==
 				}
-			}
-
-			function onWindowResize() {
-				camera.aspect = window.innerWidth / window.innerHeight;
-				camera.updateProjectionMatrix();
-				renderer.setSize(window.innerWidth, window.innerHeight);
-			}
-
-			document.body.appendChild(renderer.domElement);
-
-			window.addEventListener('resize', onWindowResize, false);
-			
-			var i = 0;
-
-			function loop() {
-				requestAnimationFrame(loop);
-
-				var y = camera.position.y;
-
-				var speed = 1;
-
-				if (keys[0]) {
-					camera.translateX(-1 * speed);
-				}
-
-				if (keys[1]) {
-					camera.translateZ(-1 * speed);
-				}
-
-				if (keys[2]) {
-					camera.translateX(speed);
-				}
-
-				if (keys[3]) {
-					camera.translateZ(speed);
-				}
-
-				camera.position.set(camera.position.x, y, camera.position.z);
-
-				camera.updateProjectionMatrix();
-
-				renderer.render(scene, camera);
-			}
-
-			loop();
-		</script>
-	</body>
-</html>
+			}, false);
