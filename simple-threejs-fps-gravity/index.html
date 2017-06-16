@@ -55,7 +55,7 @@ maximum-scale=1.0">
 				controls.move(0, -100, 0);
 			}, false);
 
-			var keys = [false, false, false, false];
+			var keys = [false, false, false, false, false];
 
 			document.addEventListener('keydown', handleKey, false);
 			document.addEventListener('keyup', handleKey, false); 
@@ -65,6 +65,9 @@ maximum-scale=1.0">
 				var key = event.keyCode;
 
 				var action = (event.type == "keydown");
+				
+				// Reset the space key
+				keys[4] = false;
 
 				switch (key) {
 					case 37:
@@ -82,6 +85,9 @@ maximum-scale=1.0">
 					case 40:
 					case 83:
 						keys[3] = action;
+						break;
+					case 32:
+						keys[4] = action;
 						break;
 				}
 			}
@@ -132,11 +138,11 @@ maximum-scale=1.0">
 					if (objectsUnder.length > 0) {
 						var floor = objectsUnder[0];
 						var distance = floor.distance;
-					console.log(distance);
+
 						var threshold = 100;
 						if (distance > threshold) {
 							fall = true;
-						} else if (distance < threshold - 1) {
+						} else if (distance < threshold - 5) {
 							rise = true;
 						} else {
 							fall = false;
@@ -144,13 +150,15 @@ maximum-scale=1.0">
 					}
 
 					if (rise) {
-						controls.move(0, 1, 0);
-					} else if (fall) {
-						controls.move(0, yVel, 0);
-						yVel -= 0.1;
-					} else {
+						controls.move(0, 5, 0);
 						yVel = 0;
+					} else if (fall) {
+						yVel -= 0.2;
+					} else if (keys[4]) {
+						yVel = 5;
 					}
+
+					controls.move(0, yVel, 0);
 
 					camera.updateProjectionMatrix();
 				}
