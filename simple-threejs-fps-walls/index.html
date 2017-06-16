@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>FPS Wall Colliders</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, 
+maximum-scale=1.0">
+
+		<link rel="stylesheet" type="text/css" href="../style.css">
+	</head>
+	<body>
+		<script src="../three.js/build/three.js"></script>
+		<script src="../js/PointerLockControls.js"></script>
+
+		<script type="application/javascript">
+			var camera, scene, renderer;
+			var mesh;
+			var controls;
+
+			camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
+			camera.position.set(0, 0, 0);
+
+			scene = new THREE.Scene();
+
+			raycaster = new THREE.Raycaster();
+
+			var texture = new THREE.TextureLoader().load('tile.jpg');
+
+			var geometry = new THREE.BoxBufferGeometry(400, 400, 400);
+			var material = new THREE.MeshPhongMaterial({map: texture, normalMap: texture, reflectivity: 0.50, side: THREE.BackSide});
+
+			mesh = new THREE.Mesh(geometry, material);
+
+			scene.add(mesh);
+
+			var lightHemisphere = new THREE.HemisphereLight(0xaaffaa, 0xaaaaff);
+
+			scene.add(lightHemisphere);
+
+			var light = new THREE.PointLight(0xffffff, 1, 300);
+			light.position.set(0, 0, 0);
+
+			scene.add(light);
+
+			renderer = new THREE.WebGLRenderer();
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+
+			renderer.domElement.addEventListener('click', function(event) {
+				document.body.requestPointerLock = document.body.requestPointerLock || document.body.mozRequestPointerLock || document.body.webkitRequestPointerLock;
+				document.body.requestPointerLock();
+				controls = new THREE.PointerLockControls(camera);
+				controls.enabled = true;
+				scene.add(controls.getObject());
+				controls.move(0, -100, 0);
+			}, false);
+
+			var keys = [false, false, false, false, false];
+
+			document.addEventListener('keydown', handleKey, false);
+			document.addEventListener('keyup', handleKey, false); 
+			function handleKey(event) {
+				event = event || window.event;
+				
+				var key = event.keyCode;
+
+				var action = (event.type == "keydown");
+				
+				// Reset the space key
+				keys[4] = false;
+
+				switch (key) {
+					case 37:
+					case 65:
+						keys[0] = action;
+						break;
+					case 38:
+					case 87:
+						keys[1] = action;
+						break;
+					case 39:
+					case 68:
+						keys[2] = action;
+						break;
+					case 40:
+					case 83:
+						keys[3] = action;
+						break;
+					case 32:
+						keys[4] = action;
+						break;
+				}
+			}
+
+			function onWindowResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+
+			document.body.appendChild(renderer.domElement);
+
+			window.addEventListener('resize', onWindowResize, false);
+			
+			var yVel = 0;
+
+			function loop() {
+				requestAnimationFrame(loop);
+
+				//var y = camera.getWorldPosition().y;
+				
+				if (controls) {
+					var speed = 5;
+
+					if (keys[0]) {
+						controls.move(-speed, 0, 0);
+					}
+
+					if (keys[1]) {
+						controls.move(0, 0, -speed);
+					}
+
+ 					if (keys[2]) {
+						controls.move(speed, 0, 0);
+					}
+
+					if (keys[3]) {
+						controls.move(0, 0, speed);
+					}
+
+					// Raycast downward
+					raycaster.set(controls.getObject().position, new THREE.Vector3(0, -1, 0));
+
+					// Get the objects below the player
+					var objectsUnder = raycaster.intersectObjects(scene.children);
+
+					// Set the default state if no objects are found
+					var fall = true;
+					var rise = false;
+
+					if (objectsUnder.length > 0) {
+						var floor = objectsUnder[0];
+						var distance = floor.distance;
+
+						var threshold = 100;
+						if (distance > threshold) {
+							fall = true;
+						} else if (distance < threshold - 1) {
+							rise = true;
+						} else {
+							fall = false;
+						}
+					}
+
+					if (rise) {
+						controls.move(0, 1, 0);
+						yVel = 0;
+					} else if (fall) {
+						yVel -= 0.2;
+					} else if (keys[4]) {
+						yVel = 5;
+					}
+
+					controls.move(0, yVel, 0);
+
+					camera.updateProjectionMatrix();
+				}
+
+				renderer.render(scene, camera);
+			}
+
+			loop();
+		</script>
+	</body>
+</html>
