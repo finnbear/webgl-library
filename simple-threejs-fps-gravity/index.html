@@ -65,9 +65,6 @@ maximum-scale=1.0">
 				var key = event.keyCode;
 
 				var action = (event.type == "keydown");
-				
-				// Reset the space key
-				keys[4] = false;
 
 				switch (key) {
 					case 37:
@@ -102,6 +99,7 @@ maximum-scale=1.0">
 
 			window.addEventListener('resize', onWindowResize, false);
 			
+			var i = 0;
 			var yVel = 0;
 
 			function loop() {
@@ -133,7 +131,7 @@ maximum-scale=1.0">
 					var objectsUnder = raycaster.intersectObjects(scene.children);
 
 					var fall = true;
-					var rise = false;
+					var rise = 0;
 
 					if (objectsUnder.length > 0) {
 						var floor = objectsUnder[0];
@@ -142,20 +140,23 @@ maximum-scale=1.0">
 						var threshold = 100;
 						if (distance > threshold) {
 							fall = true;
-						} else if (distance < threshold - 5) {
-							rise = true;
+						} else if (distance < threshold - 0.2) {
+							rise = threshold - distance;
 						} else {
 							fall = false;
 						}
 					}
 
-					if (rise) {
-						controls.move(0, 5, 0);
+					if (rise > 0) {
+						controls.move(0, rise, 0);
 						yVel = 0;
 					} else if (fall) {
 						yVel -= 0.2;
-					} else if (keys[4]) {
+					}
+					
+					if (yVel > -0.3 && keys[4]) {
 						yVel = 5;
+						keys[4] = false;
 					}
 
 					controls.move(0, yVel, 0);
@@ -163,7 +164,11 @@ maximum-scale=1.0">
 					camera.updateProjectionMatrix();
 				}
 
+				mesh.rotation.x = Math.sin(i / 250) / 3;
+
 				renderer.render(scene, camera);
+
+				i += 1;
 			}
 
 			loop();
