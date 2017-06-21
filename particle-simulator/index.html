@@ -37,7 +37,7 @@ maximum-scale=1.0">
 				var particleMaterial = new THREE.MeshPhongMaterial(0xffffff);
 				var particle = new THREE.Mesh(particleGeometry, particleMaterial);
 				particle.position.set(Math.random() * boxSize - boxSize / 2, Math.random() * boxSize - boxSize / 2, Math.random() * boxSize - boxSize / 2);
-				particle.velocity = new THREE.Vector3(5 * (Math.random() - 0.5), 5 * (Math.random() - 0.5), 5 * (Math.random() - 0.5));
+				particle.velocity = new THREE.Vector3(10 * (Math.random() - 0.5), 10 * (Math.random() - 0.5), 10 * (Math.random() - 0.5));
 				particles.add(particle);
 			}
 
