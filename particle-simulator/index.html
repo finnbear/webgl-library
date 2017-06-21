@@ -23,7 +23,7 @@ maximum-scale=1.0">
 			var boxSize = 500;
 
 			var boxGeometry = new THREE.BoxBufferGeometry(boxSize, boxSize, boxSize);
-			var boxMaterial = new THREE.MeshBasicMaterial({wireframe: true});
+			var boxMaterial = new THREE.MeshBasicMaterial({wireframe: true, color: 0xaabbcc});
 
 			box = new THREE.Mesh(boxGeometry, boxMaterial);
 
@@ -31,8 +31,8 @@ maximum-scale=1.0">
 
 			var particles = new THREE.Group();
 
-			for (var i = 0; i < 100; i++) {
-				var particleSize = Math.sqrt((Math.random() + 1) * 100);
+			for (var i = 0; i < 500; i++) {
+				var particleSize = Math.sqrt((Math.random() + 1) * 50);
 				var particleGeometry = new THREE.SphereGeometry(particleSize, 5, 5);
 				var particleMaterial = new THREE.MeshPhongMaterial(0xffffff);
 				var particle = new THREE.Mesh(particleGeometry, particleMaterial);
