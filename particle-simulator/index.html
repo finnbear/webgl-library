@@ -20,16 +20,55 @@ maximum-scale=1.0">
 
 			scene = new THREE.Scene();
 
-			var geometry = new THREE.BoxBufferGeometry(200, 200, 200);
-			var material = new THREE.MeshBasicMaterial({wireframe: true});
+			var boxSize = 500;
 
-			mesh = new THREE.Mesh(geometry, material);
+			var boxGeometry = new THREE.BoxBufferGeometry(boxSize, boxSize, boxSize);
+			var boxMaterial = new THREE.MeshBasicMaterial({wireframe: true});
 
-			scene.add(mesh);
+			box = new THREE.Mesh(boxGeometry, boxMaterial);
+
+			scene.add(box);
+
+			var particles = new THREE.Group();
+
+			for (var i = 0; i < 100; i++) {
+				var particleSize = Math.sqrt((Math.random() + 1) * 100);
+				var particleGeometry = new THREE.SphereGeometry(particleSize, 5, 5);
+				var particleMaterial = new THREE.MeshPhongMaterial(0xffffff);
+				var particle = new THREE.Mesh(particleGeometry, particleMaterial);
+				particle.position.set(Math.random() * boxSize - boxSize / 2, Math.random() * boxSize - boxSize / 2, Math.random() * boxSize - boxSize / 2);
+				particle.velocity = new THREE.Vector3(5 * (Math.random() - 0.5), 5 * (Math.random() - 0.5), 5 * (Math.random() - 0.5));
+				particles.add(particle);
+			}
+
+			scene.add(particles);
+
+			var lights = new THREE.Group();
+
+			var light1 = new THREE.PointLight(0xffffff, 0.5);
+			var light2 = new THREE.PointLight(0xffffff, 0.5);
+			var light3 = new THREE.PointLight(0xffffff, 0.5);
+			var light4 = new THREE.PointLight(0xffffff, 0.5);
+			var light5 = new THREE.PointLight(0xffffff, 0.5);
+
+			light1.position.set(0, 0, boxSize / 2);
+			light2.position.set(boxSize / 2, boxSize / 2, boxSize / -2);
+			light3.position.set(boxSize / -2, boxSize / 2, boxSize / -2);
+			light4.position.set(boxSize / -2, boxSize / -2, boxSize / -2);
+			light5.position.set(boxSize / 2, boxSize / -2, boxSize / -2);
+
+			lights.add(light1);
+			lights.add(light2);
+			lights.add(light3);
+			lights.add(light4);
+			lights.add(light5);
+
+			scene.add(lights);
 
 			renderer = new THREE.WebGLRenderer();
 			renderer.setPixelRatio(window.devicePixelRatio);
 			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.sortObjects = true;
 
 			function onWindowResize() {
 				camera.aspect = window.innerWidth / window.innerHeight;
@@ -44,8 +83,31 @@ maximum-scale=1.0">
 			function loop() {
 				requestAnimationFrame(loop);
 
-				mesh.rotation.x += 0.005;
-				mesh.rotation.y += 0.01;
+				for (var i = 0; i < particles.children.length; i++) {
+					var particle = particles.children[i];
+
+					if (particle.position.x >= boxSize / 2) {
+						particle.velocity.x = -1 * Math.abs(particle.velocity.x);
+					} else if (particle.position.x <= boxSize / -2) {
+						particle.velocity.x = Math.abs(particle.velocity.x);
+					}
+
+					if (particle.position.y >= boxSize / 2) {
+						particle.velocity.y = -1 * Math.abs(particle.velocity.y);
+					} else if (particle.position.y <= boxSize / -2) {
+						particle.velocity.y = Math.abs(particle.velocity.y);
+					}
+
+					if (particle.position.z >= boxSize / 2) {
+						particle.velocity.z = -1 * Math.abs(particle.velocity.z);
+					} else if (particle.position.z <= boxSize / -2) {
+						particle.velocity.z = Math.abs(particle.velocity.z);
+					}
+
+					particle.position.x += particle.velocity.x;
+					particle.position.y += particle.velocity.y;
+					particle.position.z += particle.velocity.z;
+				}
 
 				renderer.render(scene, camera);
 			}
