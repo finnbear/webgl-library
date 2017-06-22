@@ -24,7 +24,7 @@ maximum-scale=1.0">
 			var boxSize = 500;
 
 			var boxGeometry = new THREE.BoxBufferGeometry(boxSize, boxSize, boxSize);
-			var boxMaterial = new THREE.MeshStandardMaterial({map: texture, normalMap: texture, color: 0x667777, side: THREE.BackSide});
+			var boxMaterial = new THREE.MeshStandardMaterial({map: texture, normalMap: texture, color: 0x778888, side: THREE.BackSide});
 
 			var box = new THREE.Mesh(boxGeometry, boxMaterial);
 			box.recieveShadow = true;
@@ -52,11 +52,11 @@ maximum-scale=1.0">
 
 			var lights = new THREE.Group();
 
-			var light1 = new THREE.PointLight(0xffffff, 0.2);
-			var light2 = new THREE.PointLight(0xffffff, 0.2);
-			var light3 = new THREE.PointLight(0xffffff, 0.2);
-			var light4 = new THREE.PointLight(0xffffff, 0.2);
-			var light5 = new THREE.PointLight(0xffffff, 0.2);
+			var light1 = new THREE.PointLight(0xffffff, 0.3);
+			var light2 = new THREE.PointLight(0xffffff, 0.3);
+			var light3 = new THREE.PointLight(0xffffff, 0.3);
+			var light4 = new THREE.PointLight(0xffffff, 0.3);
+			var light5 = new THREE.PointLight(0xffffff, 0.3);
 
 			var lightHemisphere = new THREE.HemisphereLight(0x335555, 0x553355);
 
@@ -85,7 +85,7 @@ maximum-scale=1.0">
 
 			scene.add(lights);
 
-			renderer = new THREE.WebGLRenderer();
+			renderer = new THREE.WebGLRenderer({antialias: true});
 			renderer.setPixelRatio(window.devicePixelRatio);
 			renderer.setSize(window.innerWidth, window.innerHeight);
 			renderer.sortObjects = true;
