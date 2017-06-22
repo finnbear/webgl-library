@@ -9,7 +9,7 @@ maximum-scale=1.0">
 		<link rel="stylesheet" type="text/css" href="../style.css">
 	</head>
 	<body>
-		<script src="../three.js/build/three.js"></script>
+		<script src="../three.js/build/three.min.js"></script>
 
 		<script type="application/javascript">
 			var camera, scene, renderer;
@@ -20,6 +20,8 @@ maximum-scale=1.0">
 			scene = new THREE.Scene();
 
 			var texture = new THREE.TextureLoader().load('hex.jpg');
+			//texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+			//texture.repeat.set(1, 1);
 
 			var boxSize = 500;
 
