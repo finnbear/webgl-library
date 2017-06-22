@@ -24,7 +24,7 @@ maximum-scale=1.0">
 			var boxSize = 500;
 
 			var boxGeometry = new THREE.BoxBufferGeometry(boxSize, boxSize, boxSize);
-			var boxMaterial = new THREE.MeshStandardMaterial({map: texture, normal: texture, color: 0x667777, side: THREE.BackSide});
+			var boxMaterial = new THREE.MeshStandardMaterial({map: texture, normalMap: texture, color: 0x667777, side: THREE.BackSide});
 
 			var box = new THREE.Mesh(boxGeometry, boxMaterial);
 			box.recieveShadow = true;
@@ -36,7 +36,7 @@ maximum-scale=1.0">
 			for (var i = 0; i < 500; i++) {
 				var particleSize = Math.cbrt((Math.random() + 1) * 100);
 				var particleGeometry = new THREE.SphereGeometry(particleSize, 8, 8);
-				var particleMaterial = new THREE.MeshPhongMaterial({color: Math.random() * (16777215) / 6 * particleSize});
+				var particleMaterial = new THREE.MeshPhongMaterial({color:  Math.random() * (16777215) / 6 * particleSize});
 				var particle = new THREE.Mesh(particleGeometry, particleMaterial);
 				particle.position.set(Math.random() * boxSize - boxSize / 2, Math.random() * boxSize - boxSize / 2, Math.random() * boxSize - boxSize / 2);
 				particle.velocity = new THREE.Vector3(5 * (Math.random() - 0.5), 5 * (Math.random() - 0.5), 5 * (Math.random() - 0.5));
@@ -44,6 +44,9 @@ maximum-scale=1.0">
 				particle.recieveShadow = true;
 				particles.add(particle);
 			}
+
+			particles.castShadow = true;
+			particles.recieveShadow = true;
 
 			scene.add(particles);
 
