@@ -19,10 +19,12 @@ maximum-scale=1.0">
 
 			scene = new THREE.Scene();
 
+			var texture = new THREE.TextureLoader().load('hex.jpg');
+
 			var boxSize = 500;
 
 			var boxGeometry = new THREE.BoxBufferGeometry(boxSize, boxSize, boxSize);
-			var boxMaterial = new THREE.MeshStandardMaterial({color: 0x113333, side: THREE.BackSide});
+			var boxMaterial = new THREE.MeshStandardMaterial({map: texture, normal: texture, color: 0x667777, side: THREE.BackSide});
 
 			var box = new THREE.Mesh(boxGeometry, boxMaterial);
 			box.recieveShadow = true;
