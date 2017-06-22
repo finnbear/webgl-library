@@ -19,6 +19,8 @@ maximum-scale=1.0">
 
 			scene = new THREE.Scene();
 
+			scene.fog = new THREE.FogExp2(0x445544, 0.0015);
+
 			var texture = new THREE.TextureLoader().load('hex.jpg');
 			//texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 			//texture.repeat.set(1, 1);
@@ -29,7 +31,6 @@ maximum-scale=1.0">
 			var boxMaterial = new THREE.MeshStandardMaterial({map: texture, color: 0x667777, side: THREE.BackSide});
 
 			var box = new THREE.Mesh(boxGeometry, boxMaterial);
-			box.recieveShadow = true;
 
 			scene.add(box);
 
@@ -42,8 +43,6 @@ maximum-scale=1.0">
 				var particle = new THREE.Mesh(particleGeometry, particleMaterial);
 				particle.position.set(Math.random() * boxSize - boxSize / 2, Math.random() * boxSize - boxSize / 2, Math.random() * boxSize - boxSize / 2);
 				particle.velocity = new THREE.Vector3(5 * (Math.random() - 0.5), 5 * (Math.random() - 0.5), 5 * (Math.random() - 0.5));
-				particle.castShadow = true;
-				particle.recieveShadow = true;
 				particles.add(particle);
 			}
 
@@ -71,10 +70,7 @@ maximum-scale=1.0">
 			light5.position.set(boxSize / 2, boxSize / -2, boxSize / -2);
 
 			lightShadow.position.set(boxSize / 2, boxSize / 2, boxSize / 2);
-			lightShadow.castShadow = true;
-			lightShadow.shadow.mapSize.width = 512;
-			lightShadow.shadow.mapSize.height = 512;
-
+			
 			lights.add(light1);
 			lights.add(light2);
 			lights.add(light3);
@@ -87,11 +83,10 @@ maximum-scale=1.0">
 
 			scene.add(lights);
 
-			renderer = new THREE.WebGLRenderer({antialias: true});
+			renderer = new THREE.WebGLRenderer({antialias:true});
 			renderer.setPixelRatio(window.devicePixelRatio);
 			renderer.setSize(window.innerWidth, window.innerHeight);
 			renderer.sortObjects = true;
-			renderer.shadowMap.enabled = true;
 
 			function onWindowResize() {
 				camera.aspect = window.innerWidth / window.innerHeight;
