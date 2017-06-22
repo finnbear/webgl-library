@@ -15,24 +15,47 @@ maximum-scale=1.0">
 			var camera, scene, renderer;
 			var mesh;
 
-			camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 
-1000);
-			camera.position.z = 400;
+			camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 1, 10000);
+			camera.position.z = 800;
 
 			scene = new THREE.Scene();
 
 			var texture = new THREE.TextureLoader().load('crate.gif');
 
 			var geometry = new THREE.BoxBufferGeometry(200, 200, 200);
-			var material = new THREE.MeshBasicMaterial({map: texture});
+			var material = new THREE.MeshStandardMaterial({map: texture});
 
 			mesh = new THREE.Mesh(geometry, material);
+			mesh.castShadow = true;
+
+			var plane = new THREE.Mesh(new THREE.PlaneBufferGeometry(500, 500), new THREE.MeshPhongMaterial({color: 0xffffff}));
+			plane.position.y = -200;
+			plane.rotation.x = -45;
+			plane.recieveShadow = true;
+
+			var ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+
+			var spotLight = new THREE.SpotLight(0xffbbcc, 0.9);
+			spotLight.position.set(0, 400, 0);
+			spotLight.target.position.set(scene.position);
+			spotLight.castShadow = true;
+			spotLight.shadow.mapSize.width = spotLight.shadow.mapSize.height = 2048;
+			spotLight.shadow.camera.left = -5;
+			spotLight.shadow.camera.top = 5;
+			spotLight.shadow.camera.right = 5;
+			spotLight.shadow.camera.down = -5;
+			spotLight.shadow.camera.far = 1000;
+			scene.add(new THREE.CameraHelper(spotLight.shadow.camera));
 
 			scene.add(mesh);
+			scene.add(plane);
+			scene.add(ambientLight);
+			scene.add(spotLight);
 
 			renderer = new THREE.WebGLRenderer();
 			renderer.setPixelRatio(window.devicePixelRatio);
 			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.shadowMap.enabled = true;
 
 			function onWindowResize() {
 				camera.aspect = window.innerWidth / window.innerHeight;
