@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Function Plot</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, 
+maximum-scale=1.0">
+
+		<link rel="stylesheet" type="text/css" href="../style.css">
+	</head>
+	<body>
+		<script src="../three.js/build/three.min.js"></script>
+		<script src="../gui/build/dat.gui.min.js"></script>
+
+		<script type="application/javascript">
+		class Plotter {
+			constructor() {
+				this.plotSize = 15;
+
+				this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 10000);
+
+				this.scene = new THREE.Scene();
+
+				this.scene.fog = new THREE.FogExp2(0x445544, 0.0015);
+
+				this.plotSize = 15;
+
+				this.points = new THREE.Group();
+
+				var pointGeometry = new THREE.SphereGeometry(0.5, 6, 6);
+				var pointMaterial = new THREE.MeshPhongMaterial({opacity: 0.01});
+
+				for (var x = this.plotSize / -2; x < this.plotSize / 2; x++) {
+					for (var y = this.plotSize / -2; y < this.plotSize / 2; y++) {
+						for (var z = this.plotSize / -2; z < this.plotSize / 2; z++) {
+							var point = new THREE.Mesh(pointGeometry, pointMaterial);
+							point.position.set(x, y, z);
+							this.points.add(point);
+						}
+					}
+				}
+
+				this.scene.add(this.points);
+
+				var lights = new THREE.Group();
+
+				var light1 = new THREE.PointLight(0xffffff, 0.3);
+				var light2 = new THREE.PointLight(0xffffff, 0.3);
+				var light3 = new THREE.PointLight(0xffffff, 0.3);
+				var light4 = new THREE.PointLight(0xffffff, 0.3);
+				var light5 = new THREE.PointLight(0xffffff, 0.3);
+
+				var lightHemisphere = new THREE.HemisphereLight(0x335555, 0x553355);
+
+				light1.position.set(0, 0, this.plotSize / 2);
+				light2.position.set(this.plotSize / 2, this.plotSize / 2, this.plotSize / -2);
+				light3.position.set(this.plotSize / -2, this.plotSize / 2, this.plotSize / -2);
+				light4.position.set(this.plotSize / -2, this.plotSize / -2, this.plotSize / -2);
+				light5.position.set(this.plotSize / 2, this.plotSize / -2, this.plotSize / -2);
+
+				lights.add(light1);
+				lights.add(light2);
+				lights.add(light3);
+				lights.add(light4);
+				lights.add(light5);
+
+				lights.add(lightHemisphere);
+
+				this.scene.add(lights);
+
+				this.renderer = new THREE.WebGLRenderer({antialias:true});
+				this.renderer.setPixelRatio(window.devicePixelRatio);
+				this.renderer.setSize(window.innerWidth, window.innerHeight);
+				this.renderer.sortObjects = true;
+
+				var plotter = this;
+
+				function onWindowResize() {
+					plotter.camera.aspect = window.innerWidth / window.innerHeight;
+					plotter.camera.updateProjectionMatrix();
+					plotter.renderer.setSize(window.innerWidth, window.innerHeight);
+				}
+
+				document.body.appendChild(this.renderer.domElement);
+				window.addEventListener('resize', onWindowResize, false);
+			
+				this.time = 0;
+			}
+
+			loop() {
+				//for (var i = 0; i < particles.children.length; i++) {
+
+				this.camera.position.x = 25 * Math.sin(this.time);
+				this.camera.position.z = 25 * Math.cos(this.time);
+				this.camera.lookAt(this.scene.position);
+
+				this.renderer.render(this.scene, this.camera);
+
+				this.time += 0.005;
+			}
+		}
+
+		var plotter = new Plotter();
+
+		var GUI = new dat.GUI({height: 3 * 32 - 1});
+
+		GUI.add(plotter, "plotSize")
+
+		function loop() {
+			requestAnimationFrame(loop);
+
+			plotter.loop();
+		}
+
+		loop();
+		</script>
+	</body>
+</html>
