@@ -22,7 +22,7 @@ maximum-scale=1.0">
 				this.scene.fog = new THREE.FogExp2(0x445544, 0.0015);
 
 				this.pointGeometry = new THREE.SphereGeometry(0.5, 8, 8);
-				this.pointMaterial = new THREE.MeshPhongMaterial({transparent: true, opacity: 0.5});
+				this.pointMaterial = new THREE.MeshPhongMaterial({transparent: false, opacity: 0.5});
 
 				this.lights = new THREE.Group();
 
@@ -64,7 +64,7 @@ maximum-scale=1.0">
 			
 				this.time = 0;
 
-				this.func = "(x + y) / z";
+				this.func = "y * y + z * z > 0.1 && y * y + z * z< 0.4 ? sin(4 * x + t) : 0";
 
 				this.updateIncrement = 1;
 			}
@@ -104,6 +104,8 @@ maximum-scale=1.0">
 				var min = Math.min;
 				var max = Math.max;
 
+				var abs = Math.abs;
+
 				var sqrt = Math.sqrt;
 
 				var sin = Math.sin;
@@ -142,6 +144,7 @@ maximum-scale=1.0">
 
 			draw() {
 				this.camera.position.x = 1.5 * this.size * Math.sin(this.time * 0.005);
+				this.camera.position.y = 1.0 * this.size * Math.sin(this.time * 0.0025);
 				this.camera.position.z = 1.5 * this.size * Math.cos(this.time * 0.005);
 
 				this.camera.lookAt(this.scene.position);
@@ -158,7 +161,7 @@ maximum-scale=1.0">
 
 		var plotter = new Plotter();
 
-		plotter.plotSize = 10;
+		plotter.plotSize = 12;
 
 		var GUI = new dat.GUI({height: 3 * 32 - 1});
 
