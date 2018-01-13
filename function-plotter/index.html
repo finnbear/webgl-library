@@ -65,6 +65,8 @@ maximum-scale=1.0">
 				this.time = 0;
 
 				this.func = "(x + y) / z";
+
+				this.updateIncrement = 1;
 			}
 
 			get plotSize() {
@@ -72,7 +74,7 @@ maximum-scale=1.0">
 			}
 
 			set plotSize(size) {
-				this.size = size;
+				this.size = Math.max(1, size);
 
 				this.scene.remove(this.points);
 
@@ -108,38 +110,49 @@ maximum-scale=1.0">
                                 var cos = Math.cos;
                                 var tan = Math.tan;
 
-				for (var xi = 0; xi < this.size; xi++) {
-                                        for (var yi = 0; yi < this.size; yi++) {
-                                                for (var zi = 0; zi < this.size; zi++) {
-                                                        var point = this.points.children[xi * this.size * this.size + yi * this.size + zi];
+				var t = this.time * 0.05;
+				var pt = Math.sin(this.time * 0.05);
 
-							let x = (xi - this.size / 2) / this.size * 2;
-							let y = (zi - this.size / 2) / this.size * 2;
-							let z = (yi - this.size / 2) / this.size * 2;
+				try {
+					for (var xi = 0; xi < this.size; xi++) {
+                                	        for (var yi = 0; yi < this.size; yi++) {
+                                        	        for (var zi = 0; zi < this.size; zi++) {
+                                                	        var point = this.points.children[xi * this.size * this.size + yi * this.size + zi];
 
-                                                        var result = eval(this.func);
-	
-							var resultClamped = Math.min(1, Math.max(0, result));
+								let x = (xi - this.size / 2) / this.size * 2;
+								let y = (zi - this.size / 2) / this.size * 2;
+								let z = (yi - this.size / 2) / this.size * 2;
 
-							var scale = resultClamped + 0.001;
-							var opacity = resultClamped;
+	                                                        var result = eval(this.func);
 
-							point.scale.set(scale, scale, scale);
-							point.opacity = opacity;
-                                                }
-                                        }
-                                }
+								var resultClamped = Math.min(1, Math.max(0, result));
+
+								var scale = resultClamped + 0.001;
+								var opacity = resultClamped;
+
+								point.scale.set(scale, scale, scale);
+								point.opacity = opacity;
+                	                                }
+                	                        }
+                	                }
+				} catch (e) {
+
+				}
 			}
 
 			draw() {
-				this.camera.position.x = 25 * Math.sin(this.time);
-				this.camera.position.z = 25 * Math.cos(this.time);
+				this.camera.position.x = 25 * Math.sin(this.time * 0.005);
+				this.camera.position.z = 25 * Math.cos(this.time * 0.005);
 
 				this.camera.lookAt(this.scene.position);
 
 				this.renderer.render(this.scene, this.camera);
 
-				this.time += 0.005;
+				this.time += 1;
+
+				if (this.time % Math.round(this.updateIncrement) == 0) {
+					this.update();
+				}
 			}
 		}
 
@@ -153,7 +166,7 @@ maximum-scale=1.0">
 
 		GUI.add(plotter, "func");
 
-		GUI.add(plotter, "update");
+		GUI.add(plotter, "updateIncrement");
 
 		function loop() {
 			requestAnimationFrame(loop);
