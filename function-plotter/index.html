@@ -22,7 +22,7 @@ maximum-scale=1.0">
 				this.scene.fog = new THREE.FogExp2(0x445544, 0.0015);
 
 				this.pointGeometry = new THREE.SphereGeometry(0.5, 6, 6);
-				this.pointMaterial = new THREE.MeshPhongMaterial({opacity: 0.01});
+				this.pointMaterial = new THREE.MeshPhongMaterial({transparent: true, opacity: 0.5});
 
 				this.lights = new THREE.Group();
 
@@ -34,7 +34,7 @@ maximum-scale=1.0">
 
 				this.lightHemisphere = new THREE.HemisphereLight(0x335555, 0x553355);
 
-				this.light1.position.set(0, 0, this.plotSize / 2);
+				this.light1.position.set(0, 0, this.size / 2);
 
 				this.lights.add(this.light1);
 				this.lights.add(this.light2);
@@ -42,7 +42,7 @@ maximum-scale=1.0">
 				this.lights.add(this.light4);
 				this.lights.add(this.light5);
 
-				this.lights.add(lightHemisphere);
+				this.lights.add(this.lightHemisphere);
 
 				this.scene.add(this.lights);
 
@@ -63,14 +63,24 @@ maximum-scale=1.0">
 				window.addEventListener('resize', onWindowResize, false);
 			
 				this.time = 0;
+
+				this.func = "(x + y) / z";
 			}
 
-			set size(size) {
+			get plotSize() {
+				return this.size;
+			}
+
+			set plotSize(size) {
+				this.size = size;
+
+				this.scene.remove(this.points);
+
 				this.points = new THREE.Group();
 
-				for (var x = this.plotSize / -2; x < this.plotSize / 2; x++) {
-					for (var y = this.plotSize / -2; y < this.plotSize / 2; y++) {
-						for (var z = this.plotSize / -2; z < this.plotSize / 2; z++) {
+				for (var x = this.size / -2; x < this.size / 2; x++) {
+					for (var y = this.size / -2; y < this.size / 2; y++) {
+						for (var z = this.size / -2; z < this.size / 2; z++) {
 							var point = new THREE.Mesh(this.pointGeometry, this.pointMaterial);
 							point.position.set(x, y, z);
 							this.points.add(point);
@@ -80,17 +90,51 @@ maximum-scale=1.0">
 
 				this.scene.add(this.points);
 
-				light2.position.set(this.plotSize / 2, this.plotSize / 2, this.plotSize / -2);
-				light3.position.set(this.plotSize / -2, this.plotSize / 2, this.plotSize / -2);
-				light4.position.set(this.plotSize / -2, this.plotSize / -2, this.plotSize / -2);
-				light5.position.set(this.plotSize / 2, this.plotSize / -2, this.plotSize / -2);
+				this.light2.position.set(this.size / 2, this.size / 2, this.size / -2);
+				this.light3.position.set(this.size / -2, this.size / 2, this.size / -2);
+				this.light4.position.set(this.size / -2, this.size / -2, this.size / -2);
+				this.light5.position.set(this.size / 2, this.size / -2, this.size / -2);
+
+				this.update();
 			}
 
-			loop() {
-				//for (var i = 0; i < this.points.children.length; i++) {
+			update() {
+				var min = Math.min;
+				var max = Math.max;
 
+				var sqrt = Math.sqrt;
+
+				var sin = Math.sin;
+                                var cos = Math.cos;
+                                var tan = Math.tan;
+
+				for (var xi = 0; xi < this.size; xi++) {
+                                        for (var yi = 0; yi < this.size; yi++) {
+                                                for (var zi = 0; zi < this.size; zi++) {
+                                                        var point = this.points.children[xi * this.size * this.size + yi * this.size + zi];
+
+							let x = (xi - this.size / 2) / this.size * 2;
+							let y = (zi - this.size / 2) / this.size * 2;
+							let z = (yi - this.size / 2) / this.size * 2;
+
+                                                        var result = eval(this.func);
+	
+							var resultClamped = Math.min(1, Math.max(0, result));
+
+							var scale = resultClamped + 0.001;
+							var opacity = resultClamped;
+
+							point.scale.set(scale, scale, scale);
+							point.opacity = opacity;
+                                                }
+                                        }
+                                }
+			}
+
+			draw() {
 				this.camera.position.x = 25 * Math.sin(this.time);
 				this.camera.position.z = 25 * Math.cos(this.time);
+
 				this.camera.lookAt(this.scene.position);
 
 				this.renderer.render(this.scene, this.camera);
@@ -101,16 +145,20 @@ maximum-scale=1.0">
 
 		var plotter = new Plotter();
 
-		plotter.size = 10;
+		plotter.plotSize = 10;
 
 		var GUI = new dat.GUI({height: 3 * 32 - 1});
 
-		GUI.add(plotter, "plotSize")
+		GUI.add(plotter, "plotSize");
+
+		GUI.add(plotter, "func");
+
+		GUI.add(plotter, "update");
 
 		function loop() {
 			requestAnimationFrame(loop);
 
-			plotter.loop();
+			plotter.draw();
 		}
 
 		loop();
