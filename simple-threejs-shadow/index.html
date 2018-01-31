@@ -69,10 +69,10 @@ maximum-scale=1.0">
 			
 			function loop() {
 				requestAnimationFrame(loop);
-
 				mesh.rotation.x += 0.005;
 				mesh.rotation.y += 0.01;
-
+				plane.rotation.z -= 0.005;
+				renderer.shadowMap.enabled = true;
 				renderer.render(scene, camera);
 			}
 
