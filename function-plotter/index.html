@@ -26,11 +26,11 @@ maximum-scale=1.0">
 
 				this.lights = new THREE.Group();
 
-				this.light1 = new THREE.PointLight(0xffffff, 0.3);
-				this.light2 = new THREE.PointLight(0xffffff, 0.3);
-				this.light3 = new THREE.PointLight(0xffffff, 0.3);
-				this.light4 = new THREE.PointLight(0xffffff, 0.3);
-				this.light5 = new THREE.PointLight(0xffffff, 0.3);
+				this.light1 = new THREE.PointLight(0xffffff, 0.4);
+				this.light2 = new THREE.PointLight(0xffffff, 0.4);
+				this.light3 = new THREE.PointLight(0xffffff, 0.4);
+				this.light4 = new THREE.PointLight(0xffffff, 0.4);
+				this.light5 = new THREE.PointLight(0xffffff, 0.4);
 
 				this.lightHemisphere = new THREE.HemisphereLight(0x335555, 0x553355);
 
@@ -156,9 +156,9 @@ maximum-scale=1.0">
 			}
 
 			draw() {
-				this.camera.position.x = 1.5 * this.size * Math.sin(this.time * 0.005);
+				this.camera.position.x = 1.0 * this.size * Math.sin(this.time * 0.005);
 				this.camera.position.y = 1.0 * this.size * Math.sin(this.time * 0.0025);
-				this.camera.position.z = 1.5 * this.size * Math.cos(this.time * 0.005);
+				this.camera.position.z = 1.0 * this.size * Math.cos(this.time * 0.005);
 
 				this.camera.lookAt(this.scene.position);
 
