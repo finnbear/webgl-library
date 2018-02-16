@@ -67,9 +67,20 @@ maximum-scale=1.0">
 
 				this.func = "y * y + z * z > 0.1 && y * y + z * z< 0.4 ? sin(4 * x + t) : 0";
 
+				this.transparent = false;
 				this.color = true;
-				this.doUpdate = true;
 				this.updateIncrement = 1;
+				this.drawEveryFrame = true;
+			}
+
+			get fn() {
+				return this.func;
+			}
+
+			set fn(value) {
+				this.func = value;
+
+				this.update();
 			}
 
 			get plotSize() {
@@ -103,13 +114,10 @@ maximum-scale=1.0">
 				this.light5.position.set(this.size / 2, this.size / -2, this.size / -2);
 
 				this.update();
+				this.draw();
 			}
 
 			update() {
-				if (!this.doUpdate) {
-					return;
-				}
-
 				this.time += 1;
 
 				var min = Math.min;
@@ -117,6 +125,7 @@ maximum-scale=1.0">
 
 				var abs = Math.abs;
 
+				var pow = Math.pow;
 				var sqrt = Math.sqrt;
 
 				var sin = Math.sin;
@@ -145,8 +154,9 @@ maximum-scale=1.0">
 
 								point.scale.set(scale, scale, scale);
 								point.opacity = opacity;
+								point.material.transparent = this.transparent;
 
-								if (!this.color) {
+								if (!this.color || !this.drawEveryFrame) {
 									point.lifetime = 100000;
 								} else if (scale > 0.025) {
 									point.lifetime += scale;
@@ -164,9 +174,13 @@ maximum-scale=1.0">
 			}
 
 			draw() {
-				this.camera.position.x = 1.0 * this.size * Math.sin(this.drawTime * 0.005);
-				this.camera.position.y = 1.0 * this.size * Math.sin(this.drawTime * 0.0025);
-				this.camera.position.z = 1.0 * this.size * Math.cos(this.drawTime * 0.005);
+				if (this.drawEveryFrame) {
+					this.camera.position.x = 1.1 * this.size * Math.sin(this.drawTime * 0.005);
+					this.camera.position.y = 1.1 * this.size * Math.sin(this.drawTime * 0.0025);
+					this.camera.position.z = 1.1 * this.size * Math.cos(this.drawTime * 0.005);
+				} else {
+					this.camera.position.set(0.9 * this.size, 0.9 * this.size, 0.9 * this.size);
+				}
 
 				this.camera.lookAt(this.scene.position);
 
@@ -188,20 +202,22 @@ maximum-scale=1.0">
 
 		GUI.add(plotter, "plotSize");
 
-		GUI.add(plotter.pointMaterial, "transparent");
+		GUI.add(plotter, "transparent");
 
-		GUI.add(plotter, "func");
+		GUI.add(plotter, "fn");
 
 		GUI.add(plotter, "color");
 
-		GUI.add(plotter, "doUpdate");
-
 		GUI.add(plotter, "updateIncrement");
+
+		GUI.add(plotter, "drawEveryFrame");
 
 		function loop() {
 			requestAnimationFrame(loop);
 
-			plotter.draw();
+			if (plotter.drawEveryFrame) {
+				plotter.draw();
+			}
 		}
 
 		loop();
