@@ -13,6 +13,53 @@ maximum-scale=1.0">
 		<script src="../gui/build/dat.gui.min.js"></script>
 
 		<script type="application/javascript">
+		class Body extends THREE.Mesh {
+			constructor(geometry, material, position, velocity, scale) {
+				super(geometry, material);
+
+				this.position.set(position.x, position.y, position.z);
+				this.velocity = new THREE.Vector3();
+				this.velocity.set(velocity.x, velocity.y, velocity.z);
+				this.scale.set(scale, scale, scale);
+				this.material.color = new THREE.Color(Math.random(), Math.random(), Math.random());
+			}
+
+			get radius() {
+				return this.scale.x;
+			}
+
+			set radius(value) {
+                                this.scale.set(value, value, value); 
+			}
+
+			get mass() {
+				return (4 / 3) * Math.PI * Math.pow(this.scale.x, 3);
+			}
+
+			set mass(value) {
+				var scale = Math.cbrt((3 * value) / (4 * Math.PI));
+                                this.scale.set(scale, scale, scale); 
+			}
+
+			get momentum() {
+				return this.mass * Math.hypot(this.velocity.x, this.velocity.y, this.velocity.z);
+			}
+
+			set momentum(value) {
+				this.velocity.normalize();
+				this.velocity.multiplyScalar(value / this.mass);
+			}
+
+			add(body) {
+				//this.velocity.add(body.velocity);
+				this.mass = (this.mass + body.mass);
+			}
+
+			distanceTo(body) {
+				return this.position.distanceTo(body.position);
+			}
+		}
+
 		class Simulation {
 			constructor() {
 				this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 10000);
@@ -27,7 +74,7 @@ maximum-scale=1.0">
 
 				this.lights = new THREE.Group();
 
-				this.lightHemisphere = new THREE.HemisphereLight(0x335555, 0x553355);
+				this.lightHemisphere = new THREE.HemisphereLight(0x335555, 0x553355, 5);
 
 				this.lights.add(this.lightHemisphere);
 
@@ -50,16 +97,34 @@ maximum-scale=1.0">
 				window.addEventListener('resize', onWindowResize, false);
 			
 				this.time = 0;
-                                this.G = 0.5;
+                                this.G = 0.01;
 				this.updateIncrement = 1;
 				this.drawEveryFrame = true;
 				this.drawTime = 0;
 
-				this.bodiesCount = 2;
+				this.bodiesCount = 50;
+				this.sunMoves = false;
 			}
 
 			get bodiesCount() {
 				return this.countBodies;
+			}
+
+			randomScale(scale) {
+				return (Math.random() + 0.1) * scale;
+			}
+
+			randomVectorComponent(scale) {
+				return (Math.random() + -0.5) * scale;
+			}
+
+			randomVector(scale) {
+				return new THREE.Vector3(this.randomVectorComponent(scale), this.randomVectorComponent(scale), this.randomVectorComponent(scale));
+			}
+
+			addBody(position, velocity, scale) {
+				var body = new Body(this.bodyGeometry, this.bodyMaterial.clone(), position, velocity, scale);
+				this.bodies.add(body);
 			}
 
 			set bodiesCount(value) {
@@ -69,14 +134,10 @@ maximum-scale=1.0">
 
 				this.bodies = new THREE.Group();
 
-				for (var i = 0; i < this.countBodies; i++) {
-					var body = new THREE.Mesh(this.bodyGeometry, this.bodyMaterial.clone());
-					body.position.set((Math.random() - 0.5) * 50, (Math.random() - 0.5) * 50, (Math.random() - 0.5) * 50);
-					body.velocity = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5);
-					var bodyScale = (Math.random() + 0.5) * 10;
-					body.scale.set(bodyScale, bodyScale, bodyScale);
-					body.material.color = new THREE.Color(Math.random(), Math.random(), Math.random());
-					this.bodies.add(body);
+				this.addBody(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0), 25);
+
+				for (var i = 1; i < this.countBodies; i++) {
+					this.addBody(this.randomVector(100), this.randomVector(8), this.randomScale(10));
 				}
 
 				this.scene.add(this.bodies);
@@ -88,38 +149,60 @@ maximum-scale=1.0">
 			update() {
 				this.time += 1;
 
+				var bodiesToRemove = [];
+
 				for (var index1 = 0; index1 < this.bodies.children.length; index1++) {
                                	        for (var index2 = 0; index2 < this.bodies.children.length; index2++) {
 						var body1 = this.bodies.children[index1];
 						var body2 = this.bodies.children[index2];
 
-						if (body1 != body2) {
-							var g = -1 * this.G * body1.scale.x * body2.scale.x * (1 / Math.pow(body1.position.distanceTo(body2.position), 3));
+						if (body1 != body2 && bodiesToRemove.indexOf(body1) == -1 && bodiesToRemove.indexOf(body2) == -1) {
+							var R = body1.distanceTo(body2);
 
-							var a1 = g / body1.scale.x;
-							//var a2 = g / body2.scale.x;
+							if (R < body1.radius + body2.radius) {
+								if (body1.mass > body2.mass) {
+									body1.add(body2);
+									bodiesToRemove.push(body2);
+								} else {
+									body2.add(body1);
+									bodiesToRemove.push(body1);
+								}
+							} else {
+								var g = -1 * this.G * body1.mass * body2.mass * (1 / Math.pow(R, 3));
 
-							var pos1 = body1.position;
-							var pos2 = body2.position;
+								var a1 = g / body1.mass;
+								//var a2 = g / body2.mass;
 
-							var vec1 = new THREE.Vector3(pos1.x - pos2.x, pos1.y - pos2.y, pos1.z - pos2.z);
-							//var vec2 = new THREE.Vector3(pos2.x - pos1.x, pos2.y - pos1.y, pos2.z - pos1.z);
+								var pos1 = body1.position;
+								var pos2 = body2.position;
 
-							vec1.multiplyScalar(a1);
-							//vec2.multiplyScalar(a2);
+								var vec1 = new THREE.Vector3(pos1.x - pos2.x, pos1.y - pos2.y, pos1.z - pos2.z);
+								//var vec2 = new THREE.Vector3(pos2.x - pos1.x, pos2.y - pos1.y, pos2.z - pos1.z);
 
-							body1.velocity.add(vec1);
+								vec1.multiplyScalar(a1);
+								//vec2.multiplyScalar(a2);
+
+								body1.velocity.add(vec1);
+							}
 						}		
                	                        }
                                 }
 
+				for (var i = 0; i < bodiesToRemove.length; i++) {
+					this.bodies.remove(bodiesToRemove[i]);
+				}
+
 				for (var i = 0; i < this.bodies.children.length; i++) {
 					this.bodies.children[i].position.add(this.bodies.children[i].velocity);
+				}
+
+				while (this.bodies.children.length < this.countBodies) {
+					this.addBody(this.randomVector(200), this.randomVector(10), this.randomScale(5));
 				}
 			}
 
 			draw() {
-				var sceneCOM = new THREE.Vector3();
+				/*var sceneCOM = new THREE.Vector3();
 
 				for (var i = 0; i < this.bodies.children.length; i++) {
 					sceneCOM.add(this.bodies.children[i].position);
@@ -127,7 +210,23 @@ maximum-scale=1.0">
 
 				sceneCOM.divideScalar(this.bodies.children.length);
 
-				this.camera.lookAt(sceneCOM);
+				this.camera.lookAt(sceneCOM);*/
+
+				var mostMassiveBody = this.bodies.children[0];
+
+				for (var i = 1; i < this.bodies.children.length; i++) {
+					if (this.bodies.children[i].mass > mostMassiveBody.mass) {
+						mostMassiveBody = this.bodies.children[i];
+					}
+				}
+
+				if (!this.sunMoves) {
+					mostMassiveBody.position.set(0, 0, 0);
+					mostMassiveBody.velocity.set(0, 0, 0);
+				}
+
+				this.camera.lookAt(mostMassiveBody.position);
+				//this.camera.position.x += 0.1;
 
 				this.renderer.render(this.scene, this.camera);
 
@@ -139,27 +238,33 @@ maximum-scale=1.0">
 			}
 		}
 
-		var simulation = new Simulation();
+		try {
+			var simulation = new Simulation();
 
-		var GUI = new dat.GUI({height: 3 * 32 - 1});
+			var GUI = new dat.GUI({height: 3 * 32 - 1});
 
-		GUI.add(simulation, "bodiesCount");
+			GUI.add(simulation, "bodiesCount");
 
-		GUI.add(simulation, "G");
+			GUI.add(simulation, "sunMoves");
 
-		GUI.add(simulation, "updateIncrement");
+			GUI.add(simulation, "G");
 
-		GUI.add(simulation, "drawEveryFrame");
+			GUI.add(simulation, "updateIncrement");
 
-		function loop() {
-			requestAnimationFrame(loop);
+			GUI.add(simulation, "drawEveryFrame");
 
-			if (simulation.drawEveryFrame) {
-				simulation.draw();
+			function loop() {
+				requestAnimationFrame(loop);
+
+				if (simulation.drawEveryFrame) {
+					simulation.draw();
+				}
 			}
-		}
 
-		loop();
+			loop();
+		} catch (e) {
+			alert(e);
+		}
 		</script>
 	</body>
 </html>
