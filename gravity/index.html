@@ -22,6 +22,21 @@ maximum-scale=1.0">
 				this.velocity.set(velocity.x, velocity.y, velocity.z);
 				this.scale.set(scale, scale, scale);
 				this.material.color = new THREE.Color(Math.random(), Math.random(), Math.random());
+
+				this.trailPointsMax = 100;
+				var trailGeometry = new THREE.BufferGeometry();
+				var trailPositions = new Float32Array(this.trailPointsMax * 3);
+				trailGeometry.addAttribute('position', new THREE.BufferAttribute(trailPositions, 3));
+				this.trailPoints = 0;
+				trailGeometry.setDrawRange(0, this.trailPoints);
+
+				var trailMaterial = new THREE.LineBasicMaterial({color: this.material.color, linewidth: 2});
+
+				this.trail = new THREE.Line(trailGeometry, trailMaterial);
+			}
+
+			get trailObject() {
+				return this.trail;
 			}
 
 			get radius() {
@@ -50,6 +65,24 @@ maximum-scale=1.0">
 				this.velocity.multiplyScalar(value / this.mass);
 			}
 
+			applyGravity(body, G) {
+				var R = this.distanceTo(body);
+				var g = -1 * G * this.mass * body.mass * (1 / Math.pow(R, 3));
+
+				var a = g / this.mass;
+
+				var pos1 = this.position;
+				var pos2 = body.position;
+
+				var vec = new THREE.Vector3(pos1.x - pos2.x, pos1.y - pos2.y, pos1.z - pos2.z);
+
+				vec.multiplyScalar(a);
+
+				this.velocity.add(vec);
+
+				return R;
+			}
+
 			add(body) {
 				//this.velocity.add(body.velocity);
 				this.mass = (this.mass + body.mass);
@@ -57,6 +90,37 @@ maximum-scale=1.0">
 
 			distanceTo(body) {
 				return this.position.distanceTo(body.position);
+			}
+
+			updateTrail() {
+				var positions = this.trail.geometry.attributes.position.array;
+
+				if (this.trailPoints < this.trailPointsMax) {
+					positions[this.trailPoints * 3 + 0] = this.position.x;
+					positions[this.trailPoints * 3 + 1] = this.position.y;
+					positions[this.trailPoints * 3 + 2] = this.position.z;
+
+					this.trailPoints += 1;
+
+					this.trail.geometry.setDrawRange(0, this.trailPoints);
+				} else {
+					for (var i = 0; i < this.trailPointsMax - 1; i++) {
+						var x = positions[(i + 1) * 3 + 0];
+						var y = positions[(i + 1) * 3 + 1];
+						var z = positions[(i + 1) * 3 + 2];
+
+
+						positions[i * 3 + 0] = x;
+						positions[i * 3 + 1] = y
+						positions[i * 3 + 2] = z;
+					}
+
+					positions[(this.trailPointsMax - 1) * 3 + 0] = this.position.x;
+					positions[(this.trailPointsMax - 1) * 3 + 1] = this.position.y;
+					positions[(this.trailPointsMax - 1)* 3 + 2] = this.position.z;
+				}
+
+				this.trail.geometry.attributes.position.needsUpdate = true;
 			}
 		}
 
@@ -115,7 +179,7 @@ maximum-scale=1.0">
 			}
 
 			randomVectorComponent(scale) {
-				return (Math.random() + -0.5) * scale;
+				return (Math.random() - 0.5) * scale;
 			}
 
 			randomVector(scale) {
@@ -125,12 +189,18 @@ maximum-scale=1.0">
 			addBody(position, velocity, scale) {
 				var body = new Body(this.bodyGeometry, this.bodyMaterial.clone(), position, velocity, scale);
 				this.bodies.add(body);
+				this.scene.add(body.trailObject);
 			}
 
 			set bodiesCount(value) {
 				this.countBodies = value;
 
-				this.scene.remove(this.bodies);
+				if (this.bodies) {
+					this.scene.remove(this.bodies);
+					for (var i = 0; i < this.bodies.children.length; i++) {
+						this.scene.remove(this.bodies.children[i].trailObject);
+					}
+				}
 
 				this.bodies = new THREE.Group();
 
@@ -157,7 +227,7 @@ maximum-scale=1.0">
 						var body2 = this.bodies.children[index2];
 
 						if (body1 != body2 && bodiesToRemove.indexOf(body1) == -1 && bodiesToRemove.indexOf(body2) == -1) {
-							var R = body1.distanceTo(body2);
+							var R = body1.applyGravity(body2, this.G);
 
 							if (R < body1.radius + body2.radius) {
 								if (body1.mass > body2.mass) {
@@ -167,37 +237,23 @@ maximum-scale=1.0">
 									body2.add(body1);
 									bodiesToRemove.push(body1);
 								}
-							} else {
-								var g = -1 * this.G * body1.mass * body2.mass * (1 / Math.pow(R, 3));
-
-								var a1 = g / body1.mass;
-								//var a2 = g / body2.mass;
-
-								var pos1 = body1.position;
-								var pos2 = body2.position;
-
-								var vec1 = new THREE.Vector3(pos1.x - pos2.x, pos1.y - pos2.y, pos1.z - pos2.z);
-								//var vec2 = new THREE.Vector3(pos2.x - pos1.x, pos2.y - pos1.y, pos2.z - pos1.z);
-
-								vec1.multiplyScalar(a1);
-								//vec2.multiplyScalar(a2);
-
-								body1.velocity.add(vec1);
-							}
+							} 
 						}		
                	                        }
                                 }
 
 				for (var i = 0; i < bodiesToRemove.length; i++) {
+					this.scene.remove(bodiesToRemove[i].trailObject);
 					this.bodies.remove(bodiesToRemove[i]);
 				}
 
 				for (var i = 0; i < this.bodies.children.length; i++) {
 					this.bodies.children[i].position.add(this.bodies.children[i].velocity);
+					this.bodies.children[i].updateTrail();
 				}
 
 				while (this.bodies.children.length < this.countBodies) {
-					this.addBody(this.randomVector(200), this.randomVector(10), this.randomScale(5));
+					this.addBody(this.randomVector(100 + 2 * this.bodies.children[0].radius), this.randomVector(10 + 0.1 * this.bodies.children[0].radius), this.randomScale(10));
 				}
 			}
 
@@ -226,7 +282,7 @@ maximum-scale=1.0">
 				}
 
 				this.camera.lookAt(mostMassiveBody.position);
-				//this.camera.position.x += 0.1;
+				this.camera.position.x = 100 + 2 * mostMassiveBody.radius;
 
 				this.renderer.render(this.scene, this.camera);
 
