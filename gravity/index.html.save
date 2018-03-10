@@ -10,7 +10,6 @@ maximum-scale=1.0">
 	</head>
 	<body>
 		<script src="../three.js/build/three.min.js"></script>
-		<script src="../three.js/examples/js/controls/OrbitControls.js"></script>
 		<script src="../gui/build/dat.gui.min.js"></script>
 
 		<script type="application/javascript">
@@ -24,7 +23,7 @@ maximum-scale=1.0">
 				this.scale.set(scale, scale, scale);
 				this.material.color = new THREE.Color(Math.random(), Math.random(), Math.random());
 
-				this.trailPointsMax = 250;
+				this.trailPointsMax = 250	;
 				var trailGeometry = new THREE.BufferGeometry();
 				var trailPositions = new Float32Array(this.trailPointsMax * 3);
 				trailGeometry.addAttribute('position', new THREE.BufferAttribute(trailPositions, 3));
@@ -34,7 +33,6 @@ maximum-scale=1.0">
 				var trailMaterial = new THREE.LineBasicMaterial({color: this.material.color, linewidth: this.radius * 0.5});
 
 				this.trail = new THREE.Line(trailGeometry, trailMaterial);
-				this.trail.frustumCulled = false;
 			}
 
 			get trailObject() {
@@ -128,19 +126,19 @@ maximum-scale=1.0">
 
 		class Simulation {
 			constructor() {
-				this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 100000);
+				this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 10000);
 				this.camera.position.x = 200;
 
 				this.scene = new THREE.Scene();
 
-				this.scene.fog = new THREE.FogExp2(0x445544, 0.0010);
+				this.scene.fog = new THREE.FogExp2(0x445544, 0.0015);
 
 				this.bodyGeometry = new THREE.SphereGeometry(1, 10, 10);
 				this.bodyMaterial = new THREE.MeshPhongMaterial();
 
 				this.lights = new THREE.Group();
 
-				this.lightHemisphere = new THREE.HemisphereLight(0x445577, 0x228822, 5);
+				this.lightHemisphere = new THREE.HemisphereLight(0x335555, 0x553355, 5);
 
 				this.lights.add(this.lightHemisphere);
 
@@ -161,17 +159,14 @@ maximum-scale=1.0">
 
 				document.body.appendChild(this.renderer.domElement);
 				window.addEventListener('resize', onWindowResize, false);
-				this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
-				this.controls.autoRotate = true;
-				this.controls.autoRotateSpeed = 1;
-
+			
 				this.time = 0;
                                 this.G = 0.01;
 				this.updateIncrement = 1;
 				this.drawEveryFrame = true;
 				this.drawTime = 0;
 
-				this.bodiesCount = 25;
+				this.bodiesCount = 50;
 				this.sunMoves = false;
 			}
 
@@ -242,11 +237,7 @@ maximum-scale=1.0">
 									body2.add(body1);
 									bodiesToRemove.push(body1);
 								}
-							} else {
-								if (body1 == this.bodies.children[0] && R > 5000) {
-									bodiesToRemove.push(body2);
-								}
-							}
+							} 
 						}		
                	                        }
                                 }
@@ -262,7 +253,7 @@ maximum-scale=1.0">
 				}
 
 				while (this.bodies.children.length < this.countBodies) {
-					this.addBody(this.randomVector(100 + 3 * this.bodies.children[0].radius), this.randomVector(3 + 0.2 * this.bodies.children[0].radius), this.randomScale(10));
+					this.addBody(this.randomVector(100 + 2 * this.bodies.children[0].radius), this.randomVector(10 + 0.1 * this.bodies.children[0].radius), this.randomScale(10));
 				}
 			}
 
@@ -290,11 +281,8 @@ maximum-scale=1.0">
 					mostMassiveBody.velocity.set(0, 0, 0);
 				}
 
-				this.controls.center.x = mostMassiveBody.position.x;
-				this.controls.center.y = mostMassiveBody.position.y;
-				this.controls.center.z = mostMassiveBody.position.z;
-
-				this.controls.update();
+				this.camera.lookAt(mostMassiveBody.position);
+				this.camera.position.x = 100 + 2 * mostMassiveBody.radius;
 
 				this.renderer.render(this.scene, this.camera);
 
